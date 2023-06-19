@@ -1,19 +1,20 @@
 package com.example
 
 import com.example.Implements.AdminServicesImp
+import com.example.Implements.DoctorServiceImpl
 import com.example.Implements.MongoUserDataSource
 import com.example.Security.JwtTokenService
 import com.example.Security.TokenConfig
-import com.example.Security.TokenService
-import com.example.Security.hasing.HashingService
 import com.example.Security.hasing.SHA256HashingService
-import com.example.models.User
-import io.ktor.server.application.*
+import com.example.interfaces.DoctorService
 import com.example.plugins.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import io.ktor.server.application.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
+import java.io.FileInputStream
 
 
 fun main(args: Array<String>): Unit =
@@ -39,11 +40,21 @@ fun Application.module() {
         secret = System.getenv("JWT_SECRET")
     )
     val hashingService = SHA256HashingService()
+    FirebaseAdmin.init()
     configureSecurity(tokenConfig)
-    configureRouting(userDataSource, hashingService, tokenService, tokenConfig,AdminServicesImp(db))
+    configureRouting(userDataSource, hashingService, tokenService, tokenConfig,AdminServicesImp(db),DoctorServiceImpl(db))
     configureSerialization()
     configureMonitoring()
 
 
 
+}
+fun initializeFirebase() {
+    val serviceAccount = FileInputStream("src/main/resources/docmate.json")
+
+    val options = FirebaseOptions.Builder()
+        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+        .build()
+
+    FirebaseApp.initializeApp(options)
 }

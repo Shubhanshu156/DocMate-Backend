@@ -2,11 +2,20 @@ package com.example.models
 
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
+import java.util.*
 
-data class User(
-    val username: String,
-    val password: String,
-    val salt: String,
-    val type:String,
- @BsonId   val id:ObjectId=ObjectId()
+data class Doctor(
+    val username:String?=null,
+    @BsonId val id:ObjectId,
+    val age:String?=null,
+    val category:String?=null,
+    val fullname:String?=null,
+    val about:String?=null,
+    val payment:Int?=null,
+    val working_hour_start: Int?=null,
+    val working_hour_end: Int?=null,
+    val PrevSession:Int?=null,
+    val rating:Double?=null,
+    val url:String?=null,
+    val Appointments:List<AppointMents>?=null
 )

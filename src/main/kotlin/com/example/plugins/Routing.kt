@@ -1,19 +1,19 @@
 package com.example.plugins
 
 
-import com.example.Routes.addCategory
-import com.example.Security.Routes.authenticate
-import com.example.Security.Routes.getSecretInfo
-import com.example.Security.Routes.signIn
-import com.example.Security.Routes.signUp
+import com.example.Routes.AdminRoutes.AdminRoutes
+import com.example.Routes.AdminRoutes.addCategory
+import com.example.Routes.AuthRoutes.*
+
+import com.example.Routes.DoctorRoutes.DoctorRoutes
+import com.example.Routes.DoctorRoutes.UploadProfile
 import com.example.Security.TokenConfig
 import com.example.Security.TokenService
 import com.example.Security.hasing.HashingService
-import com.example.data.request.AddCategory
 import com.example.interfaces.AdminServices
+import com.example.interfaces.DoctorService
 import com.example.interfaces.UserDataSource
 import io.ktor.server.routing.*
-import io.ktor.server.response.*
 import io.ktor.server.application.*
 
 fun Application.configureRouting(
@@ -21,14 +21,16 @@ fun Application.configureRouting(
     hashingService: HashingService,
     tokenService: TokenService,
     tokenConfig: TokenConfig,
-    AdminServices:AdminServices
+    AdminServices:AdminServices,
+    DoctorService:DoctorService
 ) {
     routing {
-        signIn(userDataSource, hashingService, tokenService, tokenConfig)
-        signUp(hashingService, userDataSource)
-        authenticate()
+        AuthRoutes(userDataSource,hashingService,tokenService,tokenConfig,DoctorService)
         getSecretInfo()
-        addCategory(AdminServices)
+        DoctorRoutes(DoctorService)
+        AdminRoutes(AdminServices)
+
 
     }
 }
+
