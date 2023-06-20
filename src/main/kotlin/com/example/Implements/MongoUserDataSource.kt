@@ -16,6 +16,12 @@ class MongoUserDataSource(db:CoroutineDatabase):UserDataSource{
     }
 
     override suspend fun insertUser(user: User): Boolean {
+        val filter = User::username eq user.username
+        val existinguser = users.findOne(filter)
+        if (existinguser!=null){
+            throw Exception("User name Already Taken")
+            return false
+        }
       return users.insertOne(user).wasAcknowledged()
     }
 }

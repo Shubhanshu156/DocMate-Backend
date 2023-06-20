@@ -15,6 +15,7 @@ object FirebaseAdmin {
     private val options: FirebaseOptions = FirebaseOptions.builder()
         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
         .setStorageBucket("docmate-e8613.appspot.com")
+
         .build()
 
     fun init(): FirebaseApp = FirebaseApp.initializeApp(options)

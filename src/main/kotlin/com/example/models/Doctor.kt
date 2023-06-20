@@ -17,5 +17,5 @@ data class Doctor(
     val PrevSession:Int?=null,
     val rating:Double?=null,
     val url:String?=null,
-    val Appointments:List<AppointMents>?=null
+    val reviews:List<Review> = emptyList()
 )

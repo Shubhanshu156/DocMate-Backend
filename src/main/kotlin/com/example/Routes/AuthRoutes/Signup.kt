@@ -4,6 +4,7 @@ import com.example.Security.hasing.HashingService
 import com.example.data.request.AuthRequest
 import com.example.data.request.DoctorRequest
 import com.example.interfaces.DoctorService
+import com.example.interfaces.PatientService
 import com.example.interfaces.UserDataSource
 import com.example.models.User
 import io.ktor.http.*
@@ -15,7 +16,8 @@ import io.ktor.server.routing.*
 fun Route.signUp(
     hashingService: HashingService,
     userDataSource: UserDataSource,
-    DoctorService:DoctorService
+    DoctorService:DoctorService,
+    PatientService:PatientService
 ) {
     post("signup") {
         val request = call.receiveOrNull<AuthRequest>() ?: kotlin.run {
@@ -45,13 +47,21 @@ fun Route.signUp(
             type=request.type,
             salt = saltedHash.salt
         )
-        val wasAcknowledged = userDataSource.insertUser(user)
-
-        if(!wasAcknowledged)  {
-            call.respond(HttpStatusCode.Conflict)
-            return@post
+        try {
+            val wasAcknowledged = userDataSource.insertUser(user)
+            if(!wasAcknowledged)  {
+                call.respond(HttpStatusCode.Conflict)
+                return@post
+            }
+            if (user.type.lowercase()=="doctor"){ DoctorService.createDoctorProfile(user.id.toString(),user.username)}
+            if (user.type.lowercase()=="patient") {
+                PatientService.createPatientProfile(user.id.toString(),user.username)
+            }
+            call.respond(HttpStatusCode.OK,"Account created Successfully")
         }
-        DoctorService.createDoctorProfile(user.id.toString(),user.username)
-        call.respond(HttpStatusCode.OK,"Account created Successfully")
+catch (e:Exception){
+    call.respond(HttpStatusCode.Conflict,e.localizedMessage)
+}
+
     }
 }

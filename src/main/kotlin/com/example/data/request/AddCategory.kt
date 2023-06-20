@@ -6,3 +6,4 @@ import kotlinx.serialization.Serializable
 data class AddCategory(
     val category:String
 )
+

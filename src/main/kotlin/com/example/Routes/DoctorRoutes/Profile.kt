@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 fun Route.createProfile(DoctorServices:DoctorService) {
     authenticate {
-        patch("/profile") {
+        patch("doctor/profile") {
             val request = call.receiveOrNull<DoctorRequest>() ?: kotlin.run {
                 call.respond(HttpStatusCode.BadRequest)
                 return@patch
@@ -46,6 +46,7 @@ fun Route.createProfile(DoctorServices:DoctorService) {
     }
 
 }
+
 
 
 

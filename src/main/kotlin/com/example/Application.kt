@@ -3,6 +3,7 @@ package com.example
 import com.example.Implements.AdminServicesImp
 import com.example.Implements.DoctorServiceImpl
 import com.example.Implements.MongoUserDataSource
+import com.example.Implements.PatientServiceImpl
 import com.example.Security.JwtTokenService
 import com.example.Security.TokenConfig
 import com.example.Security.hasing.SHA256HashingService
@@ -42,13 +43,21 @@ fun Application.module() {
     val hashingService = SHA256HashingService()
     FirebaseAdmin.init()
     configureSecurity(tokenConfig)
-    configureRouting(userDataSource, hashingService, tokenService, tokenConfig,AdminServicesImp(db),DoctorServiceImpl(db))
+    configureRouting(
+        userDataSource,
+        hashingService,
+        tokenService,
+        tokenConfig,
+        AdminServicesImp(db),
+        DoctorServiceImpl(db),
+        PatientServiceImpl(db)
+    )
     configureSerialization()
     configureMonitoring()
 
 
-
 }
+
 fun initializeFirebase() {
     val serviceAccount = FileInputStream("src/main/resources/docmate.json")
 

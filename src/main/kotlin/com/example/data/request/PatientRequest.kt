@@ -1,12 +1,13 @@
-package com.example.models
+package com.example.data.request
 
-import com.example.data.request.Gender
+import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 
-data class Patient(
-    @BsonId val id:ObjectId,
-    val username:String,
+
+@Serializable
+data class PatientRequest(
+    val username:String?=null,
     val name: String?=null,
     val age: Int?=null,
     val gender: Gender?=null,
@@ -16,5 +17,8 @@ data class Patient(
     val profileurl:String?=null,
     val medicalHistory: List<String>?=null,
 )
-
-
+@Serializable
+enum class Gender{
+    MALE,
+    FEMALE
+}
