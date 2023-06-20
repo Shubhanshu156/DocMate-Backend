@@ -95,7 +95,7 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
 
     override suspend fun acceptAppointment(appointmentid: String):Boolean {
 
-        val filters = Filters.eq("id", ObjectId(appointmentid))
+        val filters = Filters.eq("_id", ObjectId(appointmentid))
         val update = Updates.set("status", AppointmentStatus.ACCEPTED.name)
         val updateResult = AppointmentCollection.updateOne(filters, update)
 
@@ -109,7 +109,7 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
 
 
     override suspend fun rejectAppointment(appointmentid: String):Boolean {
-        val filters = Filters.eq("id", ObjectId(appointmentid))
+        val filters = Filters.eq("_id", ObjectId(appointmentid))
         val update = Updates.set("status", AppointmentStatus.REJECTED.name)
         val updateResult = AppointmentCollection.updateOne(filters, update)
 

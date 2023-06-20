@@ -83,7 +83,7 @@ fun Route.getappointment(PatientService: PatientService) {
 
 fun Route.cancelAppointMent(PatientService: PatientService){
     authenticate {
-        post("patient/cancen") {
+        post("patient/cancel") {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)

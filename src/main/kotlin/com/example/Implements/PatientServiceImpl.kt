@@ -62,8 +62,22 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
     }
 
     override suspend fun getDoctor(doctorId: String): Doctor? {
-        val res = doctorCollection.findOne(Doctor::id eq ObjectId(doctorId))
+        val idRegex = Regex("^[0-9a-fA-F]{24}$")
+        val filter = if (idRegex.matches(doctorId)) {
+            Doctor::id eq ObjectId(doctorId)
+        } else {
+            Doctor::fullname eq doctorId
+        }
+
+        val resById = doctorCollection.findOne(filter)
+
+        val res = resById
         return res
+    }
+
+    override suspend fun getAllDoctors(): List<Doctor> {
+        return doctorCollection.find().toList()
+
     }
 
     override suspend fun searchDoctorsByCategory(category: String): List<Doctor> {
@@ -95,12 +109,12 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
 
     override suspend fun cancelAppointment(appointmentid:String): Boolean {
 
-        val filters = Filters.eq("id", appointmentid)
+        val filters = Filters.eq("_id", ObjectId(appointmentid))
         val update = Updates.set("status", AppointmentStatus.CANCELLED.name)
         val updateResult = AppointmentCollection.updateOne(filters, update)
 
         if (updateResult.modifiedCount == 0L) {
-            throw Exception("Failed to accept the appointment.")
+            throw Exception("Failed to Cancel the appointment no appointment with such id")
         }
         return updateResult.wasAcknowledged()
     }

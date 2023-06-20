@@ -11,4 +11,5 @@ fun Route.PatientRoutes(PatientService: PatientService) {
     getappointment(PatientService)
     SearchDoctor(PatientService)
     getDoctor(PatientService)
+    getAllDoctors(PatientService)
 }
