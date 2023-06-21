@@ -10,6 +10,7 @@ data class Patient(
     val name: String?=null,
     val age: Int?=null,
     val gender: Gender?=null,
+    val token:String?=null,
     val contactNumber: String?=null,
     val email: String?=null,
     val address: String?=null,

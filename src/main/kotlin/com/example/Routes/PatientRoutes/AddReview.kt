@@ -26,17 +26,21 @@ fun Route.addReview(PatientSerivce: PatientService) {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            val res = PatientSerivce.addDoctorReview(
-                request.doctorid,
-                Review(patientId = userId!!, message = request.message.toString(), star = request.star)
-            )
-            try {
-                if (res) {
-                    call.respond(HttpStatusCode.OK, "Review Added Successfullly")
+            if (type!!.lowercase()=="patient") {
+                val res = PatientSerivce.addDoctorReview(
+                    request.doctorid,
+                    Review(patientId = userId!!, message = request.message.toString(), star = request.star)
+                )
+                try {
+                    if (res) {
+                        call.respond(HttpStatusCode.OK, "Review Added Successfullly")
+                    }
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.BadRequest, "${e.localizedMessage}")
                 }
             }
-            catch (e:Exception){
-                call.respond(HttpStatusCode.BadRequest,"${e.localizedMessage}")
+            else{
+               call.respond(HttpStatusCode.BadRequest,"You can not access this route")
             }
         }
     }
@@ -48,26 +52,32 @@ fun Route.getReviews(PatientSerivce: PatientService){
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.getClaim("userId", String::class)
+            val type = principal?.getClaim("TYPE", String::class)
+            if (type!!.lowercase()=="patient") {
+                try {
+                    val res: List<Review> = PatientSerivce.getDoctorReviews(request.doctorid)
 
-            try {
-                val res: List<Review> = PatientSerivce.getDoctorReviews(request.doctorid)
+                    val reviewsResponseList: List<ReviewsResponse> = res.map { review ->
+                        ReviewsResponse(
+                            id = review.id.toString(),
+                            message = review.message,
+                            patientId = review.patientId,
+                            star = review.star
+                        )
+                    }
 
-                val reviewsResponseList: List<ReviewsResponse> = res.map { review ->
-                    ReviewsResponse(
-                        id = review.id.toString(),
-                        message = review.message,
-                        patientId = review.patientId,
-                        star = review.star
-                    )
+                    val listReviewsResponse = ListReviewsResponse(reviews = reviewsResponseList)
+                    val json = Json.encodeToString(ListReviewsResponse.serializer(), listReviewsResponse)
+                    call.respondText(json, ContentType.Application.Json, HttpStatusCode.OK)
+
                 }
-
-                val listReviewsResponse = ListReviewsResponse(reviews = reviewsResponseList)
-                val json = Json.encodeToString(ListReviewsResponse.serializer(), listReviewsResponse)
-                call.respondText(json, ContentType.Application.Json, HttpStatusCode.OK)
-
-            }
-            catch (e:Exception){
-                call.respond(HttpStatusCode.BadRequest,"${e.localizedMessage}")
+                catch (e:Exception){
+                    call.respond(HttpStatusCode.BadRequest,"${e.localizedMessage}")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest,"You can not access this route")
             }
         }
     }

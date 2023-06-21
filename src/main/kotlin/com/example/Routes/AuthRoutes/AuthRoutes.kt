@@ -26,6 +26,7 @@ fun Route.AuthRoutes(
 ) {
     signIn(userDataSource,hashingService,tokenService,tokenConfig)
     signUp(hashingService,userDataSource,DoctorService,PatientService)
+    UpdateToken(userDataSource)
 }
 fun Route.getSecretInfo() {
     authenticate {

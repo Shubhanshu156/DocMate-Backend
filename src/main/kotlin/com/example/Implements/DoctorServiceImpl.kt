@@ -1,22 +1,24 @@
 package com.example.Implements
 
+//import com.example.models.Appointment
+
 import com.example.data.request.DoctorRequest
 import com.example.interfaces.DoctorService
+import com.example.interfaces.Notification
 import com.example.models.AppointMents
 import com.example.models.AppointmentStatus
-//import com.example.models.Appointment
 import com.example.models.Doctor
 import com.example.models.Patient
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.Sorts
 import com.mongodb.client.model.Updates
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import org.bson.types.ObjectId
 import org.litote.kmongo.*
-
 import org.litote.kmongo.coroutine.CoroutineDatabase
 
-class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
+class DoctorServiceImpl(private val db: CoroutineDatabase,private val NotificationService: Notification) : DoctorService {
     val doctorCollection = db.getCollection<Doctor>("doctor")
     val patientCollection = db.getCollection<Patient>("patient")
     val AppointmentCollection = db.getCollection<AppointMents>("appointment")
@@ -24,12 +26,12 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
     override suspend fun createDoctorProfile(id: String, username: String): Boolean {
         val filter = Doctor::username eq username
         val existingDoctor = doctorCollection.findOne(filter)
-        if (existingDoctor!=null){
+        if (existingDoctor != null) {
             throw Exception("already username taken")
         }
         val job = CoroutineScope(Dispatchers.IO).async {
 
-                doctorCollection.insertOne(Doctor(id = ObjectId(id), username = username))
+            doctorCollection.insertOne(Doctor(id = ObjectId(id), username = username))
         }
         val v = job.await()
         println("update result is $v")
@@ -37,10 +39,10 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
     }
 
 
-    override suspend fun updateDoctorProfile(id: String, request: DoctorRequest): Pair<Boolean,String> {
+    override suspend fun updateDoctorProfile(id: String, request: DoctorRequest): Pair<Boolean, String> {
 
 
-        val filter = Doctor::id eq ObjectId(id);
+        val filter = Doctor::id eq ObjectId(id)
         var lst: ArrayList<SetTo<*>> = ArrayList()
         request.fullname?.let { lst.add(Doctor::fullname setTo it) }
         request.age?.let { lst.add(Doctor::age setTo it) }
@@ -55,21 +57,21 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
         val update = set(*lst.toTypedArray())
 
 
-
         val job = CoroutineScope(Dispatchers.IO).async {
 
-             doctorCollection.updateOne(filter, update)
+            doctorCollection.updateOne(filter, update)
         }
-        val v=job.await()
-        if (v.wasAcknowledged()){
-            return Pair(true,"updated Successfully")
+        val v = job.await()
+        if (v.wasAcknowledged()) {
+            return Pair(true, "updated Successfully")
         }
-        if (v.matchedCount==0L){
-            return Pair(false,"No such doctor found")
+        if (v.matchedCount == 0L) {
+            return Pair(false, "No such doctor found")
         }
         println("update result is$v")
-        return Pair(false,"There seems to issue on our side")
-            }
+        return Pair(false, "There seems to issue on our side")
+    }
+
     override suspend fun getDoctorById(id: String): Doctor? {
         val doctorId = ObjectId(id)
 
@@ -77,46 +79,86 @@ class DoctorServiceImpl(val db: CoroutineDatabase) : DoctorService {
     }
 
 
-
-
     override suspend fun getDoctorAppointments(doctorId: String): List<AppointMents> {
         val appointmentslst = AppointmentCollection.find(AppointMents::doctorId eq doctorId)
-        appointmentslst?.let {
-            return it!!.toList()
+        appointmentslst.let {
+            return it.toList()
         }
         return emptyList()
     }
 
-    override suspend fun getPatient(patientId: String): Patient? {
+    override suspend fun getPatient(patientId: String): Patient {
         val patient = patientCollection.findOneById(patientId)
         return patient ?: throw IllegalArgumentException("Patient with ID $patientId not found.")
     }
 
 
-    override suspend fun acceptAppointment(appointmentid: String):Boolean {
+    override suspend fun acceptAppointment(appointmentId: String): Boolean {
 
-        val filters = Filters.eq("_id", ObjectId(appointmentid))
+        val filters = and(
+            AppointMents::id eq ObjectId(appointmentId),
+            AppointMents::status ne AppointmentStatus.CANCELLED
+        )
         val update = Updates.set("status", AppointmentStatus.ACCEPTED.name)
-        val updateResult = AppointmentCollection.updateOne(filters, update)
+        val updateResult = AppointmentCollection.findOneAndUpdate(filters, update)
 
-        if (updateResult.modifiedCount == 0L) {
-            throw Exception("Failed to accept the appointment.")
+        if (updateResult ==null) {
+            throw Exception("Failed to accept the appointment or it doesn't exist.")
+        return false
         }
         else{
-            return updateResult.wasAcknowledged()
+            val doctor: Doctor = doctorCollection.findOne(Doctor::id eq ObjectId(updateResult.doctorId))!!
+            val patient: Patient = patientCollection.findOne(Patient::id eq ObjectId(updateResult.patientId))!!
+            acceptAppointMentNotification(doctor,patient,updateResult)
+            return true
         }
     }
 
+    private suspend fun acceptAppointMentNotification(doctor: Doctor, patient: Patient, appointment: AppointMents) {
 
-    override suspend fun rejectAppointment(appointmentid: String):Boolean {
-        val filters = Filters.eq("_id", ObjectId(appointmentid))
+        NotificationService.GenerateNotification(
+            Title = "AppointMent Accepted ",
+            message="Congrats!! Your AppointMent with Dr.${doctor.fullname} has been  Accepted by him",
+            imageurl = PatientServiceImpl.Avtar.DOCTOR.imageUrl,
+            tokenid = patient.token.toString(),
+            time = appointment.durationMinutes.toString(),
+            sender = doctor.fullname.toString(),
+        )
+    }
+
+
+    override suspend fun rejectAppointment(appointmentId: String): Boolean {
+
+        val filters = Filters.and(
+            Filters.eq("_id", ObjectId(appointmentId)), Filters.ne("status", AppointmentStatus.CANCELLED.name)
+        )
         val update = Updates.set("status", AppointmentStatus.REJECTED.name)
-        val updateResult = AppointmentCollection.updateOne(filters, update)
+        val updateResult = AppointmentCollection.findOneAndUpdate(filters, update)
 
-        if (updateResult.modifiedCount == 0L) {
-            throw Exception("Failed to accept the appointment.")
+        if (updateResult==null) {
+            throw Exception("Failed to reject the appointment or it doesn't exist.")
+            return false
         }
-        return updateResult.wasAcknowledged()
+        else{
+            val doctor: Doctor = doctorCollection.findOne(Doctor::id eq ObjectId(updateResult.doctorId))!!
+            val patient: Patient = patientCollection.findOne(Patient::id eq ObjectId(updateResult.patientId))!!
+            RejectAppointMentNotification(doctor,patient,updateResult)
+            return true
+        }
+
+
+
+    }
+
+    private suspend fun RejectAppointMentNotification(doctor: Doctor, patient: Patient, updateResult: AppointMents) {
+        NotificationService.GenerateNotification(
+            Title = "AppointMent Rejected ",
+            message="Sorry!! Your AppointMent with Dr.${doctor.fullname} has been  Rejected by him",
+            imageurl = PatientServiceImpl.Avtar.DOCTOR.imageUrl,
+            tokenid = patient.token.toString(),
+            time = updateResult.durationMinutes.toString(),
+            sender = doctor.fullname.toString(),
+        )
     }
 
 

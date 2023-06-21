@@ -15,20 +15,24 @@ fun Route.GetAppointment(DoctorService: DoctorService) {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            val res = DoctorService.getDoctorAppointments(userId!!)
-            val ans = res.map {
-                AppointmentResponse(
-                    it.id.toString(),
-                    it.patientId,
-                    it.doctorId,
-                    it.appointmentDateTime.toString(),
-                    it.durationMinutes,
-                    it.status,
-                    it.url,
+            if (type!!.lowercase()=="doctor") {
+                val res = DoctorService.getDoctorAppointments(userId!!)
+                val ans = res.map {
+                    AppointmentResponse(
+                        it.id.toString(),
+                        it.patientId,
+                        it.doctorId,
+                        it.appointmentDateTime.toString(),
+                        it.durationMinutes,
+                        it.status,
+                        it.url,
 
-                    )
+                        )
+                }
+                call.respond(HttpStatusCode.OK, ans)
+            } else {
+                call.respond(HttpStatusCode.Forbidden,"You are not allowed to access this route")
             }
-            call.respond(HttpStatusCode.OK, ans)
         }
     }
 }

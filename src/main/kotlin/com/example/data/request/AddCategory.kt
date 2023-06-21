@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 data class AddCategory(
     val category:String
 )
-
+@Serializable
+data class Token(
+    val token:String
+)

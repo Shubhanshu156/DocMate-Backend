@@ -1,6 +1,7 @@
 package com.example.Implements
 
 import com.example.data.request.PatientRequest
+import com.example.interfaces.Notification
 import com.example.interfaces.PatientService
 import com.example.models.*
 import com.mongodb.client.model.Filters
@@ -11,24 +12,23 @@ import kotlinx.coroutines.async
 import org.bson.types.ObjectId
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
-import java.beans.ExceptionListener
-
 import java.time.LocalDateTime
 
-class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
+class PatientServiceImpl(private val db: CoroutineDatabase, private val NotificationService: Notification) :
+    PatientService {
     val doctorCollection = db.getCollection<Doctor>("doctor")
     val patientCollection = db.getCollection<Patient>("patient")
     val AppointmentCollection = db.getCollection<AppointMents>("appointment")
     override suspend fun createPatientProfile(id: String, username: String): Boolean {
         val filter = Patient::username eq username
         val existingpatient = patientCollection.findOne(filter)
-        if (existingpatient!=null){
+        if (existingpatient != null) {
             throw Exception("already username taken")
         }
         val job = CoroutineScope(Dispatchers.IO).async {
-            patientCollection.insertOne(Patient(id=ObjectId(id), username = username))
+            patientCollection.insertOne(Patient(id = ObjectId(id), username = username))
         }
-        val v=job.await()
+        val v = job.await()
         println("update result is$v")
         return v.wasAcknowledged()
     }
@@ -50,15 +50,15 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
         val job = CoroutineScope(Dispatchers.IO).async {
             patientCollection.updateOne(filter, update)
         }
-        val v=job.await()
-        if (v.wasAcknowledged()){
-            return Pair(true,"updated Successfully!!")
+        val v = job.await()
+        if (v.wasAcknowledged()) {
+            return Pair(true, "updated Successfully!!")
         }
-        if (v.matchedCount==0L){
-            return Pair(false,"No such patient found")
+        if (v.matchedCount == 0L) {
+            return Pair(false, "No such patient found")
         }
         println("update result is$v")
-        return Pair(false,"There seems to issue on our side")
+        return Pair(false, "There seems to issue on our side")
     }
 
     override suspend fun getDoctor(doctorId: String): Doctor? {
@@ -90,7 +90,6 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
         doctorId: String,
         appointmentDateTime: LocalDateTime
     ): AppointMents? {
-
         val newappointment = AppointMents(
             patientId = patientId,
             doctorId = doctorId,
@@ -99,7 +98,11 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
             status = AppointmentStatus.PENDING,
             url = null
         )
+
         if (AppointmentCollection.insertOne(newappointment).wasAcknowledged()) {
+            val doctor: Doctor = doctorCollection.findOne(Doctor::id eq ObjectId(doctorId))!!
+            val patient: Patient = patientCollection.findOne(Patient::id eq ObjectId(patientId))!!
+            bookingConfirmNotification(doctor, patient,newappointment)
             return newappointment
         } else {
             throw Exception("Not able to perform operation on database please check if given data is correct")
@@ -107,17 +110,25 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
 
     }
 
-    override suspend fun cancelAppointment(appointmentid:String): Boolean {
+    override suspend fun cancelAppointment(appointmentid: String): Boolean {
 
         val filters = Filters.eq("_id", ObjectId(appointmentid))
         val update = Updates.set("status", AppointmentStatus.CANCELLED.name)
-        val updateResult = AppointmentCollection.updateOne(filters, update)
+        val Appointment = AppointmentCollection.findOneAndUpdate (filters, update)
 
-        if (updateResult.modifiedCount == 0L) {
+        if (Appointment==null) {
             throw Exception("Failed to Cancel the appointment no appointment with such id")
+            return false
         }
-        return updateResult.wasAcknowledged()
-    }
+        else {
+            val doctor: Doctor = doctorCollection.findOne(Doctor::id eq ObjectId(Appointment.doctorId))!!
+            val patient: Patient = patientCollection.findOne(Patient::id eq ObjectId(Appointment.patientId))!!
+            cancelNotification(doctor, patient,Appointment)
+            return true
+        }
+        }
+
+
 
     override suspend fun getPatientAppointments(patientId: String): List<AppointMents> {
         return AppointmentCollection.find(AppointMents::patientId eq patientId).toList()
@@ -139,5 +150,30 @@ class PatientServiceImpl(db: CoroutineDatabase) : PatientService {
             push(Doctor::reviews, review)
         ).wasAcknowledged()
 
+    }
+
+    private suspend fun bookingConfirmNotification(doctor: Doctor, patient: Patient, newappointment: AppointMents) {
+        NotificationService.GenerateNotification(
+            Title = "Appointment Requested",
+            message="Hi Doc!! ${patient.name} has requested a Appointment With you",
+            imageurl = Avtar.PATIENT.imageUrl,
+            tokenid = doctor.token.toString(),
+            time = newappointment.durationMinutes.toString(),
+            sender = patient.name.toString(),
+        )
+    }
+    private suspend fun cancelNotification(doctor: Doctor, patient: Patient, appointment: AppointMents) {
+        NotificationService.GenerateNotification(
+            Title = "AppointMent Cancelled ",
+            message="Your AppointMent with ${patient.name} has been  Cancelled by him",
+            imageurl = Avtar.PATIENT.imageUrl,
+            tokenid = doctor.token.toString(),
+            time = appointment.durationMinutes.toString(),
+            sender = patient.name.toString(),
+        )
+    }
+    enum class Avtar(val imageUrl: String) {
+        DOCTOR("https://cdn-icons-png.flaticon.com/512/2869/2869812.png"),
+        PATIENT("https://cdn-icons-png.flaticon.com/512/2785/2785482.png")
     }
 }

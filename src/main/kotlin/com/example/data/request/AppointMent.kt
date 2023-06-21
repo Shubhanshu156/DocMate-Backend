@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AcceptAppointMent(
-    val id:String
+    val appointmentid:String
 )
 @Serializable
 data class bookappointment(

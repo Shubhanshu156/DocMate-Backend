@@ -41,7 +41,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("org.litote.kmongo:kmongo:$kmongo_version")
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
-
+    implementation ("io.insert-koin:koin-ktor:3.4.0")
+    // SLF4J Logger
+    implementation ("io.insert-koin:koin-logger-slf4j:3.4.0")
     implementation("commons-codec:commons-codec:$commons_codec_version")
 
     sshAntTask("org.apache.ant:ant-jsch:1.10.12")

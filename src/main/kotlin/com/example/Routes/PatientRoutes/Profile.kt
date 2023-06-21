@@ -21,15 +21,18 @@ fun Route.Profile(PatientService:PatientService){
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            try{
-                val res=PatientService.updatePatientProfile(userId!!,request)
-                call.respond(HttpStatusCode.OK,res.second)
-            }
-            catch (e:Exception){
+            if (type!!.lowercase()=="patient") {
+                try{
+                    val res=PatientService.updatePatientProfile(userId!!,request)
+                    call.respond(HttpStatusCode.OK,res.second)
+                }
+                catch (e:Exception){
 
-                call.respond(HttpStatusCode.InternalServerError,"$e.localizedMessage\n$userId\n   $request")
+                    call.respond(HttpStatusCode.InternalServerError,"$e.localizedMessage\n$userId\n   $request")
+                }
+            } else {
+                call.respond(HttpStatusCode.Forbidden,"You are not allowed to this route")
             }
-
 
 
         }

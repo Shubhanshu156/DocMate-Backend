@@ -9,6 +9,7 @@ data class Doctor(
     @BsonId val id:ObjectId,
     val age:String?=null,
     val category:String?=null,
+    val token:String?=null,
     val fullname:String?=null,
     val about:String?=null,
     val payment:Int?=null,

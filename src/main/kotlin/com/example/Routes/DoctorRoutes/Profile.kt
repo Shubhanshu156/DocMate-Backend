@@ -32,13 +32,17 @@ fun Route.createProfile(DoctorServices:DoctorService) {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            try{
-                val res=DoctorServices.updateDoctorProfile(userId!!,request)
-                call.respond(HttpStatusCode.OK,res.second)
-            }
-            catch (e:Exception){
+            if (type!!.lowercase()=="doctor") {
+                try{
+                    val res=DoctorServices.updateDoctorProfile(userId!!,request)
+                    call.respond(HttpStatusCode.OK,res.second)
+                }
+                catch (e:Exception){
 
-                call.respond(HttpStatusCode.InternalServerError,"$e.localizedMessage\n$userId\n   $request")
+                    call.respond(HttpStatusCode.InternalServerError,"$e.localizedMessage\n$userId\n   $request")
+                }
+            } else {
+            call.respond(HttpStatusCode.Forbidden,"You can not access this route")
             }
 
 

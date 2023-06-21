@@ -10,11 +10,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.net.URL
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-fun Route.UploadProfile(){
+fun Route.UploadProfile() {
     authenticate {
         post("/upload") {
             val multipartData = call.receiveMultipart()
@@ -23,9 +25,17 @@ fun Route.UploadProfile(){
                     is PartData.FileItem -> {
                         val filename = generateUniqueFileName(part.originalFileName!!)
                         val fileBytes = part.streamProvider().readBytes()
-                        val url=uploadFileToFirebaseStorage(filename, fileBytes)
-                        call.respond(HttpStatusCode.OK, "File uploaded successfully$url.")
+                        val url = uploadFileToFirebaseStorage(filename, fileBytes)
+                        val json = JsonObject(
+                            mapOf(
+                                "message" to JsonPrimitive("File Uploaded Successfully"),
+                                "URL" to JsonPrimitive(url?.toString() ?: throw Exception("Failed to upload file"))
+                            )
+                        )
+
+                        call.respond(HttpStatusCode.OK, json)
                     }
+
                     else -> {}
                 }
             }
@@ -34,11 +44,14 @@ fun Route.UploadProfile(){
     }
 
 }
+
+
 private fun generateUniqueFileName(originalFileName: String): String {
     val extension = originalFileName.substringAfterLast(".")
     val uniqueId = UUID.randomUUID().toString()
     return "$uniqueId.$extension"
 }
+
 private fun uploadFileToFirebaseStorage(filename: String, fileBytes: ByteArray): URL? {
 
     val app = FirebaseApp.getApps().find { it.name == FirebaseApp.DEFAULT_APP_NAME }
@@ -47,7 +60,7 @@ private fun uploadFileToFirebaseStorage(filename: String, fileBytes: ByteArray):
     val bucketName = storage.name
     val blobId = storage.create(filename, fileBytes)
     val expirationMillis = TimeUnit.DAYS.toMillis(1) // URL expiration time (e.g., 1 day)
-    val url = storage.storage.signUrl(blobId,100000, TimeUnit.DAYS)
+    val url = storage.storage.signUrl(blobId, 100000, TimeUnit.DAYS)
     println("File uploaded to bucket: $bucketName, Blob ID: $blobId")
     return url
 
