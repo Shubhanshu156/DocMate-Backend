@@ -13,5 +13,5 @@ data class ReviewsResponse(
     val id: String,
     val message:String?,
     val patientId:String,
-    val star:String,
+    val star:Int=0,
 )

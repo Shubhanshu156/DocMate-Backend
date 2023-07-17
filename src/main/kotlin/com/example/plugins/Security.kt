@@ -10,6 +10,7 @@ import com.example.Security.TokenConfig
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.request.*
+import java.util.*
 
 
 fun Application.configureSecurity(config: TokenConfig) {
@@ -28,9 +29,19 @@ fun Application.configureSecurity(config: TokenConfig) {
                     .require(Algorithm.HMAC256(config.secret))
                     .withAudience(config.audience)
                     .withIssuer(config.issuer)
+                    .acceptLeeway(config.expiresIn)
                     .build()
             )
             validate { credential ->
+                val expirationTime = credential.payload.expiresAt.time
+                val currentTime = System.currentTimeMillis()
+                println("valueof expiration is $expirationTime, $currentTime")
+
+                if (expirationTime < currentTime) {
+                    // Token is expired
+                    return@validate null
+                }
+
                 if (credential.payload.audience.contains(config.audience)) JWTPrincipal(credential.payload) else null
             }
         }

@@ -42,6 +42,7 @@ fun Route.SearchDoctor(PatientService: PatientService) {
                             PrevSession = doctor.PrevSession,
                             rating = doctor.rating,
                             url = doctor.url,
+                            ratingArray = doctor.ratingArray,
                             reviews = doctor.reviews.map { review ->
                                 ReviewsResponse(
                                     id = review.id.toString(),
@@ -58,6 +59,31 @@ fun Route.SearchDoctor(PatientService: PatientService) {
                     call.respond(HttpStatusCode.OK, doctorSearch)
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.BadRequest, e.localizedMessage)
+                }
+            } else {
+                call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this page")
+            }
+        }
+    }
+}
+
+fun Route.GetCategories(PatientService: PatientService) {
+    authenticate {
+        get("patient/categories") {
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.getClaim("userId", String::class)
+            val type = principal?.getClaim("TYPE", String::class)
+            if (type!!.lowercase() == "patient") {
+                try {
+                    val res = PatientService.getcategory()
+                    print("result is $res")
+                    if (res != null) {
+                        call.respond(HttpStatusCode.OK, res)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Enter valid details")
+                    }
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, "${e.localizedMessage}")
                 }
             } else {
                 call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this page")
@@ -114,6 +140,20 @@ fun Route.getDoctor(PatientService: PatientService) {
             }
 
         }
+    }
+}
+
+fun Route.getTopDoctors(PatientService: PatientService) {
+    authenticate {
+        get("patient/topdoctors") {
+            try {
+
+                call.respond(HttpStatusCode.OK, PatientService.getTopDoctors())
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
+            }
+        }
+
     }
 }
 

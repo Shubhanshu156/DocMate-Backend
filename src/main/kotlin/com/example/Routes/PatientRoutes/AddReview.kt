@@ -29,7 +29,7 @@ fun Route.addReview(PatientSerivce: PatientService) {
             if (type!!.lowercase()=="patient") {
                 val res = PatientSerivce.addDoctorReview(
                     request.doctorid,
-                    Review(patientId = userId!!, message = request.message.toString(), star = request.star)
+                    Review(patientId = userId!!, message = request.message.toString(), star = request.star.toInt())
                 )
                 try {
                     if (res) {

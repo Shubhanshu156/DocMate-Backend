@@ -1,5 +1,7 @@
 package com.example.interfaces
 
+import com.example.data.request.Category
+import com.example.data.request.CategoryResponse
 import com.example.data.request.DoctorRequest
 import com.example.data.request.PatientRequest
 import com.example.models.AppointMents
@@ -19,11 +21,12 @@ interface PatientService {
         doctorId: String,
         appointmentDateTime: LocalDateTime
     ): AppointMents?
-
+    suspend fun getcategory(): List<CategoryResponse>
     suspend fun cancelAppointment(appointmentid:String ): Boolean
     suspend fun getPatientAppointments(patientId: String): List<AppointMents>
     suspend fun getDoctorReviews(doctorId: String): List<Review>
     suspend fun addDoctorReview(doctorId: String, review: Review): Boolean
+    suspend fun getTopDoctors(): List<Doctor>
 }
 
 

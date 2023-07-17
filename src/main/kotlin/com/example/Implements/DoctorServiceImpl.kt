@@ -97,33 +97,48 @@ class DoctorServiceImpl(private val db: CoroutineDatabase,private val Notificati
 
         val filters = and(
             AppointMents::id eq ObjectId(appointmentId),
-            AppointMents::status ne AppointmentStatus.CANCELLED
+            AppointMents::status ne AppointmentStatus.CANCELLED,
+            AppointMents::status ne AppointmentStatus.REJECTED
         )
+//        also updated the completed session by one
         val update = Updates.set("status", AppointmentStatus.ACCEPTED.name)
         val updateResult = AppointmentCollection.findOneAndUpdate(filters, update)
-
         if (updateResult ==null) {
             throw Exception("Failed to accept the appointment or it doesn't exist.")
         return false
         }
         else{
-            val doctor: Doctor = doctorCollection.findOne(Doctor::id eq ObjectId(updateResult.doctorId))!!
-            val patient: Patient = patientCollection.findOne(Patient::id eq ObjectId(updateResult.patientId))!!
+            println("update result is $updateResult")
+            val doctor: Doctor? = doctorCollection.findOne(Doctor::id eq ObjectId(updateResult.doctorId))
+            val patient: Patient? = patientCollection.findOne(Patient::id eq ObjectId(updateResult.patientId))
+            if (doctor==null || patient==null){
+                throw Exception("Either Doctor or Patient Does not Exist")
+                return false
+            }
             acceptAppointMentNotification(doctor,patient,updateResult)
+            updateprevsssion(doctor)
             return true
         }
     }
+suspend fun updateprevsssion(doctor: Doctor){
+    val filter=(Doctor::id eq doctor.id)
+    doctorCollection.updateOne(filter, inc(Doctor::PrevSession, 1))
 
+}
     private suspend fun acceptAppointMentNotification(doctor: Doctor, patient: Patient, appointment: AppointMents) {
-
+try{
         NotificationService.GenerateNotification(
             Title = "AppointMent Accepted ",
             message="Congrats!! Your AppointMent with Dr.${doctor.fullname} has been  Accepted by him",
-            imageurl = PatientServiceImpl.Avtar.DOCTOR.imageUrl,
+            imageurl = Avtar.DOCTOR.imageUrl,
             tokenid = patient.token.toString(),
             time = appointment.durationMinutes.toString(),
             sender = doctor.fullname.toString(),
         )
+    }
+    catch (e:Exception){
+        throw Exception("Unable to Send Notification ${e.localizedMessage}")
+    }
     }
 
 
@@ -154,7 +169,7 @@ class DoctorServiceImpl(private val db: CoroutineDatabase,private val Notificati
         NotificationService.GenerateNotification(
             Title = "AppointMent Rejected ",
             message="Sorry!! Your AppointMent with Dr.${doctor.fullname} has been  Rejected by him",
-            imageurl = PatientServiceImpl.Avtar.DOCTOR.imageUrl,
+            imageurl = Avtar.DOCTOR.imageUrl,
             tokenid = patient.token.toString(),
             time = updateResult.durationMinutes.toString(),
             sender = doctor.fullname.toString(),

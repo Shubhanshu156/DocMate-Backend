@@ -6,3 +6,7 @@ import kotlinx.serialization.Serializable
 data class Search(
     val name:String
 )
+@Serializable
+data class SignUpResponse(
+    val msg:String
+)

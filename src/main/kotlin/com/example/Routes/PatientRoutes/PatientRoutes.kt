@@ -10,6 +10,8 @@ fun Route.PatientRoutes(PatientService: PatientService) {
     cancelAppointMent(PatientService)
     getappointment(PatientService)
     SearchDoctor(PatientService)
+    GetCategories(PatientService)
     getDoctor(PatientService)
     getAllDoctors(PatientService)
+    getTopDoctors(PatientService)
 }

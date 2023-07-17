@@ -31,10 +31,12 @@ fun Route.AcceptAppointMent(doctorService: DoctorService) {
                         return@post
                     }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.BadRequest, e.localizedMessage)
+                    call.respond(HttpStatusCode.BadRequest, "Error is${e.message}")
+                    return@post
                 }
             } else {
                 call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this route")
+            return@post
             }
 
         }

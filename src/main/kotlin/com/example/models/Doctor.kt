@@ -15,8 +15,9 @@ data class Doctor(
     val payment:Int?=null,
     val working_hour_start: Int?=null,
     val working_hour_end: Int?=null,
-    val PrevSession:Int?=null,
-    val rating:Double?=null,
+    val PrevSession:Int?=0,
+    val rating:Int=0,
     val url:String?=null,
+    val ratingArray: List<Int> = List(5) { 0 },
     val reviews:List<Review> = emptyList()
 )

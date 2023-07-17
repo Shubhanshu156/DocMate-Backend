@@ -1,6 +1,8 @@
 package com.example.Implements
 
+import com.example.FirebaseAdmin
 import com.example.interfaces.Notification
+import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 
@@ -13,6 +15,7 @@ class FirebaseNotification : Notification {
         imageurl: String,
         message:String
     ) {
+        FirebaseAdmin.init()
         val message = Message.builder()
             .putData("title", Title)
             .putData("Senders Name", sender)

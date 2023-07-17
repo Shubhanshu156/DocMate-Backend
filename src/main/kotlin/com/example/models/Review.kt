@@ -9,6 +9,6 @@ data class Review(
    @BsonId val id:ObjectId=ObjectId(),
     val message:String?,
     val patientId:String,
-    val star:String,
+    val star:Int=0,
 
 )

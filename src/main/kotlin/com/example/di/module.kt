@@ -11,7 +11,7 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 
 val appModule = module {
-    val mongopw = System.getenv("MONGO_PW")
+    val mongopw ="i8g6kdMbxbPBzfgG"
     val dbname = "DocMate"
 
     single {

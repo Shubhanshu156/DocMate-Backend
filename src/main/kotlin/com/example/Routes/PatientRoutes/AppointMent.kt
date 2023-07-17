@@ -18,7 +18,7 @@ fun Route.bookappointment(PatientService: PatientService) {
     authenticate {
         post("patient/book") {
             val request = call.receiveOrNull<bookappointment>() ?: kotlin.run {
-                call.respond(HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.BadRequest,"There is issue in your request")
                 return@post
             }
             val principal = call.principal<JWTPrincipal>()
@@ -45,9 +45,10 @@ fun Route.bookappointment(PatientService: PatientService) {
                         )
                     )
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.BadRequest, "${e.localizedMessage}")
+                    call.respond(HttpStatusCode.InternalServerError, "This is error messsage ${e.message}")
                 }
-            } else {
+            }
+            else {
                 call.respond(HttpStatusCode.Forbidden,"You are not allowed to this route")
             }
         }
