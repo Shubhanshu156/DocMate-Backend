@@ -147,8 +147,32 @@ fun Route.getTopDoctors(PatientService: PatientService) {
     authenticate {
         get("patient/topdoctors") {
             try {
+                var res2 = PatientService.getTopDoctors()
 
-                call.respond(HttpStatusCode.OK, PatientService.getTopDoctors())
+                val result = res2.map { res ->
+                    DoctorResponse(
+                        username = res.username,
+                        id = res.id.toString(),
+                        age = res.age,
+                        category = res.category,
+                        fullname = res.fullname,
+                        about = res.about,
+                        payment = res.payment,
+                        working_hour_start = res.working_hour_start,
+                        working_hour_end = res.working_hour_end,
+                        PrevSession = res.PrevSession,
+                        rating = res.rating,
+                        url = res.url,
+                        reviews = res.reviews.map {
+                            ReviewsResponse(
+                                id = it.id.toString(),
+                                patientId = it.patientId,
+                                message = it.message,
+                                star = it.star
+                            )
+                        })
+                }
+                call.respond(HttpStatusCode.OK, result)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
             }
