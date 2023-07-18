@@ -3,8 +3,10 @@ package com.example.Routes.DoctorRoutes
 import com.example.FirebaseAdmin
 import com.example.data.request.AuthRequest
 import com.example.data.request.DoctorRequest
+import com.example.data.request.Gender
 
 import com.example.interfaces.DoctorService
+import com.example.models.Doctor
 import com.google.firebase.FirebaseApp
 import com.google.firebase.cloud.StorageClient
 import io.ktor.http.*
@@ -17,6 +19,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.bson.types.ObjectId
 import java.net.URL
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -34,7 +37,27 @@ fun Route.createProfile(DoctorServices:DoctorService) {
             val type = principal?.getClaim("TYPE", String::class)
             if (type!!.lowercase()=="doctor") {
                 try{
-                    val res=DoctorServices.updateDoctorProfile(userId!!,request)
+                    val gender = when {
+                        request.gender.isNullOrBlank() -> null
+                        request.gender.lowercase() == "male" -> Gender.MALE
+                        request.gender.lowercase() == "female" -> Gender.FEMALE
+                        else -> null // Handle cases where the gender value is neither "male" nor "female"
+                    }
+
+                    val res=DoctorServices.updateDoctorProfile(userId!!, Doctor(
+                        username = request.username,
+                        age = request.age ,
+                        category = request.category ,
+                        fullname = request.fullname ,
+                        about = request.about,
+                        payment = request.payment,
+                        gender = gender,
+                        working_hour_start = request.working_hour_start ,
+                        working_hour_end = request.working_hour_end ,
+                        url = request.profileurl ,
+                        id = ObjectId()
+                    )
+                    )
                     call.respond(HttpStatusCode.OK,res.second)
                 }
                 catch (e:Exception){

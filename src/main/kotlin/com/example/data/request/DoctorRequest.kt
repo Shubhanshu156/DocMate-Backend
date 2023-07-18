@@ -12,5 +12,6 @@ data class DoctorRequest(
     val payment:Int?=null,
     val working_hour_start:Int?=null,
     val working_hour_end: Int?=null,
-    val profileurl:String?=null
+    val profileurl:String?=null,
+    val gender: String?=null
 )

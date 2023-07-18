@@ -9,7 +9,6 @@ import org.bson.types.ObjectId
 
 interface DoctorService {
     suspend fun createDoctorProfile(id:String,username:String): Boolean
-    suspend fun updateDoctorProfile(ObjectId: String, request: DoctorRequest): Pair<Boolean,String>
     suspend fun getDoctorById(id: String): Doctor?
 
     suspend fun getDoctorAppointments(doctorId: String): List<AppointMents>
@@ -17,5 +16,6 @@ interface DoctorService {
     suspend fun acceptAppointment(appointmentid:String):Boolean
     suspend fun rejectAppointment(appointmendid:String): Boolean
 
+    suspend fun updateDoctorProfile(id: String, request: Doctor): Pair<Boolean, String>
 }
 

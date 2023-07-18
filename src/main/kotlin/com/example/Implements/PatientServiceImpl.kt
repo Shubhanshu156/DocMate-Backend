@@ -2,6 +2,7 @@ package com.example.Implements
 
 import com.example.data.request.Category
 import com.example.data.request.CategoryResponse
+import com.example.data.request.Gender
 import com.example.data.request.PatientRequest
 import com.example.interfaces.Notification
 import com.example.interfaces.PatientService
@@ -52,7 +53,13 @@ class PatientServiceImpl(private val db: CoroutineDatabase, private val Notifica
 
         request.name?.let { lst.add(Patient::name setTo it) }
         request.age?.let { lst.add(Patient::age setTo it) }
-        request.gender?.let { lst.add(Patient::gender setTo it) }
+        request.gender?.let {
+            when(it.lowercase()){
+                "male"-> lst.add(Patient::gender setTo Gender.MALE)
+                "female"-> lst.add(Patient::gender setTo Gender.FEMALE)
+                else->lst.add(Patient::gender setTo null)
+            }
+            }
         request.contactNumber?.let { lst.add(Patient::contactNumber setTo it) }
         request.email?.let { lst.add(Patient::email setTo it) }
         request.address?.let { lst.add(Patient::address setTo it) }
