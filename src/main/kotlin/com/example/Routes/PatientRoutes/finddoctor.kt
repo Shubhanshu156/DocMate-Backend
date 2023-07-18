@@ -204,6 +204,7 @@ fun Route.getAllDoctors(PatientService: PatientService) {
                             working_hour_end = res.working_hour_end,
                             PrevSession = res.PrevSession,
                             rating = res.rating,
+                            gender= res.gender?.name,
                             url = res.url,
                             reviews = res.reviews.map {
                                 ReviewsResponse(

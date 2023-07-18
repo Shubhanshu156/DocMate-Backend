@@ -39,14 +39,15 @@ class MongoUserDataSource(db:CoroutineDatabase):UserDataSource{
             throw Exception("User not found")
             return false
         }
+        print("our user is$existingUser")
         return when (type.lowercase()) {
             "patient" -> {
                 val update = set(Patient::token setTo token)
-                users.updateOne(filter, update).wasAcknowledged()
+                PatientCollection.updateOne(Patient::id eq ObjectId(id), update).wasAcknowledged()
             }
             "doctor" -> {
                 val update = set(Doctor::token setTo token)
-                users.updateOne(filter, update).wasAcknowledged()
+                DoctorCollection.updateOne(Doctor::id eq ObjectId(id), update).wasAcknowledged()
             }
             else -> false
         }

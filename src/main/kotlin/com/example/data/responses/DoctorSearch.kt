@@ -25,6 +25,7 @@ data class DoctorResponse(
     val PrevSession: Int? = null,
     val rating: Int? = null,
     val url: String? = null,
+    val gender:String?=null,
     val ratingArray: List<Int> = List(5) { 0 },
     val reviews: List<ReviewsResponse> = emptyList()
 )
