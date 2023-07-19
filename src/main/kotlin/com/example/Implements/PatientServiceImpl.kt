@@ -7,15 +7,19 @@ import com.example.data.request.PatientRequest
 import com.example.interfaces.Notification
 import com.example.interfaces.PatientService
 import com.example.models.*
+import com.mongodb.client.model.Collation
+import com.mongodb.client.model.CollationStrength
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import org.bson.BsonDocument
 import org.bson.types.ObjectId
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import java.time.LocalDateTime
+import java.util.regex.Pattern
 import kotlin.math.roundToInt
 
 class PatientServiceImpl(private val db: CoroutineDatabase, private val NotificationService: Notification) :
@@ -99,10 +103,30 @@ class PatientServiceImpl(private val db: CoroutineDatabase, private val Notifica
 
     }
 
-    override suspend fun searchDoctorsByCategory(category: String): List<Doctor> {
-        val filter = Filters.`in`("category", category)
+    override suspend fun searchDoctorsByCategory(category: String?, name: String?): List<Doctor> {
+        val nameRegex = if (!name.isNullOrBlank()) {
+            Regex(name, RegexOption.IGNORE_CASE)
+        } else {
+            null
+        }
+
+        val filter = if (category != null && nameRegex != null) {
+            Filters.and(
+                Filters.eq("category", category),
+                Filters.regex("fullname", Pattern.compile(nameRegex.pattern, Pattern.CASE_INSENSITIVE))
+            )
+        } else if (category != null) {
+            Filters.eq("category", category)
+        } else if (nameRegex != null) {
+            Filters.regex("fullname", Pattern.compile(nameRegex.pattern, Pattern.CASE_INSENSITIVE))
+        } else {
+            BsonDocument() // Empty filter for all doctors
+        }
+
         return doctorCollection.find(filter).toList()
     }
+
+
 
 
     override suspend fun bookAppointment(

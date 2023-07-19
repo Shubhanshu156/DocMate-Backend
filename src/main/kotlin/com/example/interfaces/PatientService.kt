@@ -15,7 +15,7 @@ interface PatientService {
     suspend fun updatePatientProfile(ObjectId: String, request: PatientRequest): Pair<Boolean,String>
     suspend fun getDoctor(doctorId: String): Doctor?
     suspend fun getAllDoctors():List<Doctor>
-    suspend fun searchDoctorsByCategory(category: String): List<Doctor>
+    suspend fun searchDoctorsByCategory(category: String?,name:String?): List<Doctor>
     suspend fun bookAppointment(
         patientId: String,
         doctorId: String,

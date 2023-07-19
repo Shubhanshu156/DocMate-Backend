@@ -1,6 +1,7 @@
 package com.example.Routes.PatientRoutes
 
 import com.example.data.request.Search
+import com.example.data.request.SearchbyId
 import com.example.data.responses.DoctorResponse
 import com.example.data.responses.DoctorSearch
 import com.example.data.responses.ReviewsResponse
@@ -26,7 +27,7 @@ fun Route.SearchDoctor(PatientService: PatientService) {
             val type = principal?.getClaim("TYPE", String::class)
             if (type!!.lowercase() == "patient") {
                 try {
-                    val res = PatientService.searchDoctorsByCategory(request.name)
+                    val res = PatientService.searchDoctorsByCategory(request.category,request.name)
 
                     val doctorResponseList: List<DoctorResponse> = res.map { doctor ->
                         DoctorResponse(
@@ -95,7 +96,7 @@ fun Route.GetCategories(PatientService: PatientService) {
 fun Route.getDoctor(PatientService: PatientService) {
     authenticate {
         get("patient/getdoctor") {
-            val request = call.receiveOrNull<Search>() ?: kotlin.run {
+            val request = call.receiveOrNull<SearchbyId>() ?: kotlin.run {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get
             }
@@ -104,7 +105,7 @@ fun Route.getDoctor(PatientService: PatientService) {
             val type = principal?.getClaim("TYPE", String::class)
             if (type!!.lowercase() == "patient") {
                 try {
-                    val res = PatientService.getDoctor(request.name)
+                    val res = PatientService.getDoctor(request.id)
 
                     if (res != null) {
                         call.respond(HttpStatusCode.OK, DoctorResponse(
