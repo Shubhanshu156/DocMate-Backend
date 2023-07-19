@@ -8,22 +8,25 @@ import com.google.firebase.messaging.Message
 
 class FirebaseNotification : Notification {
     override suspend fun GenerateNotification(
-        tokenid: String,
         Title: String,
+        message: String,
+        imageurl: String,
+        tokenid: String,
         time: String,
         sender: String,
-        imageurl: String,
-        message:String
+
     ) {
-        FirebaseAdmin.init()
-        val message = Message.builder()
+        val app = FirebaseApp.getApps().find { it.name == FirebaseApp.DEFAULT_APP_NAME }
+        val firebaseApp = app ?: FirebaseAdmin.init()
+        val notificationMessage = Message.builder()
             .putData("title", Title)
-            .putData("Senders Name", sender)
-            .putData("Meet Time", time)
+            .putData("SendersName", sender)
+            .putData("MeetTime", time)
             .putData("image", imageurl)
-            .putData("message",message)
+            .putData("message", message)
             .setToken(tokenid)
             .build()
-        FirebaseMessaging.getInstance().sendAsync(message)
+        println("result is $Title$sender$time$imageurl$message")
+        FirebaseMessaging.getInstance(firebaseApp).sendAsync(notificationMessage)
     }
 }

@@ -18,7 +18,7 @@ import org.bson.types.ObjectId
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 
-class DoctorServiceImpl(private val db: CoroutineDatabase,private val NotificationService: Notification) : DoctorService {
+class DoctorServiceImpl constructor(private val db: CoroutineDatabase,private val NotificationService: Notification) : DoctorService {
     val doctorCollection = db.getCollection<Doctor>("doctor")
     val patientCollection = db.getCollection<Patient>("patient")
     val AppointmentCollection = db.getCollection<AppointMents>("appointment")
@@ -136,8 +136,10 @@ try{
             time = appointment.durationMinutes.toString(),
             sender = doctor.fullname.toString(),
         )
+
     }
     catch (e:Exception){
+        println("error in DoctorServiceImp${e.localizedMessage}")
         throw Exception("Unable to Send Notification ${e.localizedMessage}")
     }
     }
