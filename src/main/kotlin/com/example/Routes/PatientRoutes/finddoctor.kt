@@ -16,10 +16,10 @@ import io.ktor.server.routing.*
 
 fun Route.SearchDoctor(PatientService: PatientService) {
     authenticate {
-        get("patient/search") {
+        post("patient/search") {
             val request = call.receiveOrNull<Search>() ?: kotlin.run {
                 call.respond(HttpStatusCode.BadRequest)
-                return@get
+                return@post
             }
 
             val principal = call.principal<JWTPrincipal>()
@@ -51,18 +51,22 @@ fun Route.SearchDoctor(PatientService: PatientService) {
                                     patientId = review.patientId,
                                     star = review.star
                                 )
-                            }
+                            },
+                            gender= doctor.gender?.name,
                         )
                     }
 
                     val doctorSearch = DoctorSearch(doctors = doctorResponseList)
 
                     call.respond(HttpStatusCode.OK, doctorSearch)
+                    return@post
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.BadRequest, e.localizedMessage)
+                    return@post
                 }
             } else {
                 call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this page")
+                return@post
             }
         }
     }
