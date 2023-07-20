@@ -175,7 +175,9 @@ fun Route.getTopDoctors(PatientService: PatientService) {
                                 message = it.message,
                                 star = it.star
                             )
-                        })
+                        },
+                        gender = res.gender?.name
+                    )
                 }
                 call.respond(HttpStatusCode.OK, result)
             } catch (e: Exception) {
