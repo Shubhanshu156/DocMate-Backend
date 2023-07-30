@@ -1,5 +1,6 @@
 package com.example.data.request
 
+import com.example.models.Patient
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
@@ -17,6 +18,19 @@ data class PatientRequest(
     val profileurl:String?=null,
     val medicalHistory: List<String>?=null,
 )
+fun Patient.toPatientRequest(): PatientRequest {
+    return PatientRequest(
+        username = username,
+        name = name,
+        age = age,
+        gender = gender?.name,
+        contactNumber = contactNumber,
+        email = email,
+        address = address,
+        profileurl = profileurl,
+        medicalHistory = medicalHistory
+    )
+}
 @Serializable
 enum class Gender{
     MALE,

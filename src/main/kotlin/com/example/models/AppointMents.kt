@@ -11,10 +11,15 @@ data class AppointMents(
     @BsonId val id:ObjectId=ObjectId(),
     val patientId: String,
     val doctorId: String,
-    val appointmentDateTime: LocalDateTime,
+    val date: Int,
+    val month:Int,
+    val year:Int,
+    val time:Int,
     val durationMinutes: Int,
     var status: AppointmentStatus,
-    val url:String?
+    val url:String?,
+    val doctorname:String="DocMate Doctor",
+    val patientname:String="DocMate Patient"
 )
 
 enum class AppointmentStatus {

@@ -12,7 +12,6 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.time.LocalDateTime
 
 fun Route.bookappointment(PatientService: PatientService) {
     authenticate {
@@ -30,18 +29,27 @@ fun Route.bookappointment(PatientService: PatientService) {
                     val res = PatientService.bookAppointment(
                         patientId = userId!!,
                         doctorId = request.doctorid,
-                        appointmentDateTime = LocalDateTime.parse(request.time)
+                        year=request.year,
+                        month = request.month,
+                        date=request.date,
+                        time=request.time,
+                    url=request.url
                     )
                     call.respond(
                         HttpStatusCode.OK,
                         AppointmentResponse(
-                            res!!.id.toString(),
-                            res.patientId,
-                            res.doctorId,
-                            res.appointmentDateTime.toString(),
-                            res.durationMinutes,
-                            res.status,
-                            res.url
+                            id=res!!.id.toString(),
+                            patientId=res.patientId,
+                            doctorId=res.doctorId,
+                            date=res.date,
+                            year = res.year,
+                            month = res.month,
+                            time=res.time,
+                            durationMinutes=res.durationMinutes,
+                            status=res.status,
+                            url=res.url,
+                            doctorname=res.doctorname,
+                            patientname=res.patientname
                         )
                     )
                 } catch (e: Exception) {
@@ -67,13 +75,18 @@ fun Route.getappointment(PatientService: PatientService) {
                     val res = PatientService.getPatientAppointments(userId!!)
                     var ans = ListAppointMent(res.map {
                         AppointmentResponse(
-                            doctorId = it.doctorId,
-                            patientId = it.patientId,
-                            appointmentDateTime = it.appointmentDateTime.toString(),
-                            durationMinutes = it.durationMinutes,
                             id = it.id.toString(),
+                            patientId = it.patientId,
+                            doctorId = it.doctorId,
+                            date = it.date,
+                            month = it.month,
+                            year = it.year
+                            , time=it.time,
+                            durationMinutes = it.durationMinutes,
+                            status = it.status,
                             url = it.url,
-                            status = it.status
+                            doctorname = it.doctorname,
+                            patientname = it.patientname
                         )
                     })
                     call.respond(HttpStatusCode.OK, ans)

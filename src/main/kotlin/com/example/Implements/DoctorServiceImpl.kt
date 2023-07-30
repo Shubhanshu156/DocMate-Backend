@@ -78,6 +78,11 @@ class DoctorServiceImpl constructor(private val db: CoroutineDatabase,private va
 
         return doctorCollection.findOne(Filters.eq("_id", doctorId))
     }
+    override suspend fun getPatientbyId(id:String):Patient?{
+        val patienid = ObjectId(id)
+
+        return patientCollection.findOne(Filters.eq("_id", patienid))
+    }
 
 
     override suspend fun getDoctorAppointments(doctorId: String): List<AppointMents> {
@@ -89,7 +94,7 @@ class DoctorServiceImpl constructor(private val db: CoroutineDatabase,private va
     }
 
     override suspend fun getPatient(patientId: String): Patient {
-        val patient = patientCollection.findOneById(patientId)
+        val patient = patientCollection.findOneById(ObjectId(patientId))
         return patient ?: throw IllegalArgumentException("Patient with ID $patientId not found.")
     }
 

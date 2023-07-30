@@ -2,6 +2,7 @@ package com.example.Routes.PatientRoutes
 
 import com.example.data.request.Search
 import com.example.data.request.SearchbyId
+import com.example.data.request.SlotRequest
 import com.example.data.responses.DoctorResponse
 import com.example.data.responses.DoctorSearch
 import com.example.data.responses.ReviewsResponse
@@ -74,11 +75,10 @@ fun Route.SearchDoctor(PatientService: PatientService) {
 
 fun Route.GetCategories(PatientService: PatientService) {
     authenticate {
-        get("patient/categories") {
+        get("categories") {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            if (type!!.lowercase() == "patient") {
                 try {
                     val res = PatientService.getcategory()
                     print("result is $res")
@@ -90,26 +90,27 @@ fun Route.GetCategories(PatientService: PatientService) {
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError, "${e.localizedMessage}")
                 }
-            } else {
-                call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this page")
-            }
+
         }
     }
 }
 
 fun Route.getDoctor(PatientService: PatientService) {
     authenticate {
-        get("patient/getdoctor") {
-            val request = call.receiveOrNull<SearchbyId>() ?: kotlin.run {
-                call.respond(HttpStatusCode.BadRequest)
+        get("getdoctor") {
+            val id = call.parameters["doctorId"]
+            if (id.isNullOrBlank()) {
+                call.respond(HttpStatusCode.BadRequest, "ID parameter is missing or empty")
                 return@get
             }
+
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
-            if (type!!.lowercase() == "patient") {
+
+
                 try {
-                    val res = PatientService.getDoctor(request.id)
+                    val res = PatientService.getDoctor(id)
 
                     if (res != null) {
                         call.respond(HttpStatusCode.OK, DoctorResponse(
@@ -140,9 +141,6 @@ fun Route.getDoctor(PatientService: PatientService) {
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError, "${e.localizedMessage}")
                 }
-            } else {
-                call.respond(HttpStatusCode.Forbidden, "You are not allowed to access this page")
-            }
 
         }
     }
@@ -188,6 +186,34 @@ fun Route.getTopDoctors(PatientService: PatientService) {
     }
 }
 
+fun Route.getSlots(PatientService: PatientService){
+    authenticate {
+        post ("patient/getslots"){
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.getClaim("userId", String::class)
+            val type = principal?.getClaim("TYPE", String::class)
+
+            if (type!!.lowercase() == "patient") {
+                try{
+
+                    val request = call.receiveOrNull<SlotRequest>() ?: kotlin.run {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@post
+                    }
+                    val res=PatientService.getAvaiableSlots(doctorId = request.id, date=request.date,month=request.month,year=request.year)
+                    call.respond(HttpStatusCode.OK,res)
+                }
+                catch (e:Exception){
+
+                }
+            }
+            else{
+                call.respond(HttpStatusCode.Forbidden, "You are not allowed to this route")
+
+            }
+        }
+    }
+}
 fun Route.getAllDoctors(PatientService: PatientService) {
     authenticate {
         get("/patient/getall") {

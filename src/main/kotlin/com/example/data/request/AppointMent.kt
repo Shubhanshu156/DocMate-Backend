@@ -10,5 +10,10 @@ data class AcceptAppointMent(
 @Serializable
 data class bookappointment(
     val doctorid:String,
-    val time:String
+    val year:Int,
+    val month:Int,
+    val time:Int,
+    val date:Int,
+    val url:String
+
 )

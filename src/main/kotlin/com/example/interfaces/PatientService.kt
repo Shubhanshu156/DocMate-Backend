@@ -19,7 +19,11 @@ interface PatientService {
     suspend fun bookAppointment(
         patientId: String,
         doctorId: String,
-        appointmentDateTime: LocalDateTime
+        date:Int,
+        time:Int,
+        year:Int,
+        month:Int,
+        url:String
     ): AppointMents?
     suspend fun getcategory(): List<CategoryResponse>
     suspend fun cancelAppointment(appointmentid:String ): Boolean
@@ -27,6 +31,7 @@ interface PatientService {
     suspend fun getDoctorReviews(doctorId: String): List<Review>
     suspend fun addDoctorReview(doctorId: String, review: Review): Boolean
     suspend fun getTopDoctors(): List<Doctor>
+    suspend fun getAvaiableSlots(doctorId: String,date:Int,month:Int,year:Int):List<Int>
 }
 
 

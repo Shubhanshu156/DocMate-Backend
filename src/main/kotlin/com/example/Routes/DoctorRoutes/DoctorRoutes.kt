@@ -10,6 +10,5 @@ fun Route.DoctorRoutes(DoctorService:DoctorService){
     GetAppointment(DoctorService)
     GetPatient(DoctorService)
     UploadProfile()
-
     createProfile(DoctorService)
 }

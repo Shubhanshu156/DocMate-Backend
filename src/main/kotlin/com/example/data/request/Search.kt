@@ -15,3 +15,11 @@ data class SignUpResponse(
 data class SearchbyId(
     val id:String
 )
+
+@Serializable
+data class SlotRequest(
+    val id:String,
+    val date:Int,
+    val month:Int,
+    val year:Int,
+)

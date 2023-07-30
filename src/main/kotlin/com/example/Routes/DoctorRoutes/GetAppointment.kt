@@ -11,7 +11,7 @@ import io.ktor.server.routing.*
 
 fun Route.GetAppointment(DoctorService: DoctorService) {
     authenticate {
-        get("doctor/appointment") {
+        post("doctor/appointment") {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
             val type = principal?.getClaim("TYPE", String::class)
@@ -22,10 +22,15 @@ fun Route.GetAppointment(DoctorService: DoctorService) {
                         it.id.toString(),
                         it.patientId,
                         it.doctorId,
-                        it.appointmentDateTime.toString(),
+                        date=it.date,
+                        month=it.month,
+                        year=it.year,
+                        time=it.time,
                         it.durationMinutes,
                         it.status,
                         it.url,
+                        it.doctorname,
+                        it.patientname,
 
                         )
                 }

@@ -34,3 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+src/main/resources
+src/main/kotlin/com/example/di/module.kt

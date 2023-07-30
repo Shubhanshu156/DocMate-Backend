@@ -29,7 +29,7 @@ fun Route.signIn(
 
         val user = userDataSource.getUserByUserNameType(request.username, request.type)
         if (user == null) {
-            call.respond(HttpStatusCode.NotFound,  AuthResponse(token = "",msg="No Such User"))
+            call.respond(HttpStatusCode.NotFound,  AuthResponse(userid =null, token = "", msg ="No Such User"))
             return@post
         }
 
@@ -57,7 +57,7 @@ fun Route.signIn(
 
         call.respond(
             HttpStatusCode.OK,
-            AuthResponse(token = token,msg="SignIn Successfully")
+            AuthResponse(userid =user.id.toString() , token = token, msg ="SignIn Successfully")
         )
     }
 }

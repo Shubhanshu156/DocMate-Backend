@@ -14,4 +14,5 @@ fun Route.PatientRoutes(PatientService: PatientService) {
     getDoctor(PatientService)
     getAllDoctors(PatientService)
     getTopDoctors(PatientService)
+    getSlots(PatientService)
 }

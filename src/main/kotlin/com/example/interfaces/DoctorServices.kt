@@ -17,5 +17,6 @@ interface DoctorService {
     suspend fun rejectAppointment(appointmendid:String): Boolean
 
     suspend fun updateDoctorProfile(id: String, request: Doctor): Pair<Boolean, String>
+    suspend fun getPatientbyId(id: String): Patient?
 }
 

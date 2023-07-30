@@ -47,10 +47,10 @@ fun Route.addReview(PatientSerivce: PatientService) {
 }
 fun Route.getReviews(PatientSerivce: PatientService){
     authenticate {
-        get("patient/reviews") {
+        post("patient/reviews") {
             val request = call.receiveOrNull<getReview>() ?: kotlin.run {
                 call.respond(HttpStatusCode.BadRequest)
-                return@get
+                return@post
             }
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
