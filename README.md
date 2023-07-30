@@ -1,83 +1,81 @@
-# DocMate
+Doctor-Patient Appointment Booking Backend with Ktor and Atlas MongoDB
+Introduction
+This project serves as the backend for the Doctor-Patient Appointment Booking Android Application. It is built using Ktor, a powerful asynchronous web framework for Kotlin, and Atlas MongoDB, a cloud-based database service. The backend provides APIs to handle user authentication, appointment management, and communication between doctors and patients.
 
-This Android application allows doctors and patients to book appointments and schedule meetings. The app enables patients to request appointments with doctors, and doctors can accept or decline these appointment requests. The app aims to facilitate seamless communication and scheduling between healthcare professionals and their patients.
+Features
+User Authentication
 
+Users can register and create accounts.
+Existing users can log in securely with their credentials.
+Token-based authentication is used to validate user sessions.
+Doctor Profile Management
 
-## Features
+Doctors can create and manage their profiles.
+Profile information includes name, specialty, contact details, and availability.
+Doctors can update their availability status for appointment booking.
+Patient Profile Management
 
-1.  **User Registration and Authentication**
-    
-    -   Users can create accounts or log in with existing credentials.
-    -   User authentication ensures secure access to the app's features.
-2.  **Doctor Profile**
-    
-    -   Doctors can create and manage their profiles.
-    -   Profile information includes name, specialty, contact details, and availability.
-3.  **Patient Profile**
-    
-    -   Patients can create and maintain their profiles.
-    -   Profile information includes name, contact details, and medical history.
-4.  **Appointment Request**
-    
-    -   Patients can request an appointment with a specific doctor.
-    -   They can select a preferred date and time for the appointment.
-    -   Patients can provide additional details about their health concerns.
-5.  **Appointment Management (Doctor)**
-    
-    -   Doctors receive notification of appointment requests from patients.
-    -   Doctors can view the details of the appointment request.
-    -   They can accept or decline appointment requests based on their availability.
-6.  **Appointment Management (Patient)**
-    
-    -   Patients can view the status of their appointment requests.
-    -   They receive notifications about the status of their requests.
-7.  **Appointment Scheduling**
-    
-    -   Once a doctor accepts an appointment request, the appointment is scheduled.
-    -   Both the doctor and the patient can view the scheduled appointments.
-8.  **Notifications**
-    
-    -   Users receive real-time notifications about appointment status updates.
+Patients can create and maintain their profiles.
+Profile information includes name, contact details, and medical history.
+Appointment Request and Scheduling
 
-## Screenshots
+Patients can request appointments with specific doctors.
+Doctors receive appointment requests and can accept or decline them based on availability.
+Once accepted, appointments are scheduled and saved in the database.
+Both doctors and patients can view their scheduled appointments.
+Real-time Communication
 
-<div style="overflow-x: auto;">
-    <table>
-    <tr>
-        <td>
-            <h4>Signin Screen</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/PatientSignin.gif" height="370" width="200">
-        </td>
-        <td>
-            <h4>Patient Home</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/PatientHome.gif" height="370" width="200">
-        </td>
-        <td>
-            <h4>Appointment Screen</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/Appointment.gif" height="370" width="200">
-        </td>
-        <td>
-            <h4>Patient Profile</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/PatientProfile.gif" height="370" width="200">
-        </td>
-        <td>
-            <h4>Doctor Side</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/DoctorView.gif" height="370" width="200">
-        </td>
-    </table>
-</div>
+The backend handles real-time communication between doctors and patients.
+It enables notifications for appointment status updates, ensuring a seamless experience.
+Security
 
+Passwords are stored securely using encryption techniques.
+Token-based authentication prevents unauthorized access.
+Prerequisites
+Kotlin SDK
+MongoDB Atlas account (or any MongoDB instance)
+Gradle
+Getting Started
+Clone the Repository
 
+bash
+Copy code
+git clone https://github.com/your-username/doctor-patient-backend.git
+Configure MongoDB
 
-## Libraries Used in Project
+Sign up for a MongoDB Atlas account or set up your MongoDB instance.
+Obtain the connection URI for your MongoDB instance.
+Set Up Environment Variables
 
-- [JetPack Compose](https://developer.android.com/jetpack/compose?gclsrc=ds&gclsrc=ds)-Jetpack Compose is Android’s recommended modern toolkit for building native UI. It simplifies and accelerates UI development on Android. Quickly bring your app to life with less code, powerful tools, and intuitive Kotlin APIs.
-- [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) - For asynchronous and more..
-- [Android Architecture Components](https://developer.android.com/topic/libraries/architecture) - Collection of libraries that help you design robust, testable, and maintainable apps.
-  - [Flows](https://developer.android.com/kotlin/flow) -Flows are built on top of coroutines and can provide multiple values. A flow is conceptually a stream of data that can be computed asynchronously.
+Create a .env file in the project's root directory.
+Add the following environment variables to the .env file:
+makefile
+Copy code
+MONGODB_URI=your_mongodb_connection_uri
+JWT_SECRET=your_jwt_secret_key
+Build and Run the Application
 
-- [Dagger-Hilt](https://dagger.dev/hilt/) - Standard library to incorporate Dagger dependency injection into an Android application.
+arduino
+Copy code
+gradle run
+API Endpoints
 
-- [Coil-kt](https://coil-kt.github.io/coil/compose/) - An image loading library for Android backed by Kotlin Coroutines. 
- [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) - Firebase Cloud Messaging allows you to send notification messages and data messages reliably to iOS, Android, and the web. FCM  used in this application to inform doctor and patient about their appointment status time to time.
-- [Ktor](https://github.com/Shubhanshu156/DocMate-Backend) - Ktor is an asynchronous web framework for Kotlin. Entire backend of this application is created using ktor and mongodb.Check out [backend code](https://github.com/Shubhanshu156/DocMate-Backend)
+Refer to the API documentation for details on available endpoints and request/response formats.
+Project Structure
+The project follows a standard Ktor application structure:
+
+src/main/kotlin/
+Application.kt: Entry point for the Ktor application.
+routes/: Contains route handlers for different endpoints.
+models/: Defines data models for users, appointments, and other entities.
+services/: Contains services responsible for business logic.
+config/: Configuration files for database, authentication, and other settings.
+Deployment
+You can deploy the backend application to a cloud hosting service like Heroku or AWS Elastic Beanstalk. Ensure that the environment variables (such as the MongoDB connection URI and JWT secret key) are set up correctly in the hosting environment.
+
+Future Enhancements
+Socket-Based Communication: Implement WebSocket-based communication for real-time updates instead of traditional REST endpoints.
+Role-Based Access Control: Introduce role-based access control to distinguish between doctors and patients, allowing different levels of access to certain endpoints.
+Caching and Rate Limiting: Introduce caching mechanisms and rate limiting to optimize API performance and prevent abuse.
+Conclusion
+The Doctor-Patient Appointment Booking Backend built with Ktor and Atlas MongoDB serves as the backbone for the Android application. By providing robust authentication, appointment management, and real-time communication, it enables smooth interactions between doctors and patients. Feel free to contribute to the project and make it even better! If you encounter any issues or have any suggestions, please create an issue in the repository.
