@@ -2,13 +2,6 @@
 
 This Android application allows doctors and patients to book appointments and schedule meetings. The app enables patients to request appointments with doctors, and doctors can accept or decline these appointment requests. The app aims to facilitate seamless communication and scheduling between healthcare professionals and their patients.
 
-## Installation
-
-To install this app, follow these steps:
-
-1. Clone this repository: `git clone https://github.com/Shubhanshu156/Vidioz`
-2. Open the project in android Studio
-3. Build and run the app on an Android device or emulator.
 
 ## Features
 
@@ -53,7 +46,7 @@ To install this app, follow these steps:
     <tr>
         <td>
             <h4>Signin Screen</h4>
-            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/PatientSignin.gif" height="370" width="1000">
+            <img src="https://raw.githubusercontent.com/Shubhanshu156/DocMate-Android/master/PatientSignin.gif" height="370" width="200">
         </td>
         <td>
             <h4>Patient Home</h4>
